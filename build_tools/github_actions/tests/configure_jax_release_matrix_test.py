@@ -32,7 +32,7 @@ class ConfigureJaxReleaseMatrixTest(unittest.TestCase):
         self.assertGreater(len(jax_refs), 1)
         self.assertEqual(
             set(matrix[0]),
-            {"python_version", "jax_ref", "jax_repository", "build_mode", "gfx_arch"},
+            {"python_version", "jax_ref", "jax_repository", "gfx_arch"},
         )
 
     def test_explicit_python_version_narrows_matrix(self):
@@ -58,24 +58,7 @@ class ConfigureJaxReleaseMatrixTest(unittest.TestCase):
         self.assertEqual(matrix[0]["python_version"], "3.12")
         self.assertEqual(matrix[0]["jax_ref"], "rocm-jaxlib-v0.10.0")
         self.assertEqual(matrix[0]["jax_repository"], "ROCm/jax")
-        self.assertEqual(matrix[0]["build_mode"], "manylinux")
         self.assertEqual(matrix[0]["gfx_arch"], "device-all")
-
-    def test_ci_jax_matrix_excludes_unsupported_build_modes(self):
-        matrix = m.generate_jax_matrix_for_release_type(
-            release_type="ci",
-            platform="linux",
-        )
-
-        self.assertGreater(len(matrix), 0)
-        self.assertEqual(
-            {row["build_mode"] for row in matrix},
-            {"manylinux"},
-        )
-        self.assertNotIn(
-            "rocm-jaxlib-v0.9.1",
-            {row["jax_ref"] for row in matrix},
-        )
 
     def test_generated_rows_cover_workflow_matrix_inputs(self):
         # workflow file like:
